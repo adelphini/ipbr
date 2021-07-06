@@ -1,0 +1,54 @@
+root@AstNovatec:~# apt -y install vim
+root@AstNovatec:~# vim /etc/network/interfaces
+
+-- (Início do arquivo interface) /etc/network/interface --
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface dhcp
+# allow-hotplug enp0s3
+# iface enp0s3 inet dhcp
+
+# This is an autoconfigured IPv6 interface
+iface enp0s3 inet6 auto
+
+# The primary network interface static
+allow-hotplug enp0s3
+iface enp0s3 inet static
+        address 192.168.15.3
+        netmask 255.255.255.0
+        network 192.168.15.0
+        broadcast 192.168.15.255
+        gateway 192.168.15.1
+        dns-nameserver 208.67.222.222
+        dns-nameserver 208.67.220.220
+        dns-nameserver 8.8.8.8
+        dns-nameserver 8.8.4.4
+        dns-search google.com
+-- (Final do arquivo interface) /etc/network/interface --
+
+root@AstNovatec:~# reboot
+root@AstNovatec:~# hostname -I
+192.168.15.3 2804:431:cfff:7175:a00:27ff:fe6a:7029
+root@AstNovatec:~#
+root@AstNovatec:~# ping google.com.br
+PING google.com.br(2800:3f0:4001:801::2003 (2800:3f0:4001:801::2003)) 56 data bytes
+64 bytes from 2800:3f0:4001:801::2003 (2800:3f0:4001:801::2003): icmp_seq=1 ttl=117 time=7.86 ms
+64 bytes from 2800:3f0:4001:801::2003 (2800:3f0:4001:801::2003): icmp_seq=2 ttl=117 time=5.90 ms
+64 bytes from 2800:3f0:4001:801::2003 (2800:3f0:4001:801::2003): icmp_seq=3 ttl=117 time=4.69 ms
+64 bytes from 2800:3f0:4001:801::2003 (2800:3f0:4001:801::2003): icmp_seq=4 ttl=117 time=10.5 ms
+64 bytes from 2800:3f0:4001:801::2003 (2800:3f0:4001:801::2003): icmp_seq=5 ttl=117 time=8.96 ms
+64 bytes from 2800:3f0:4001:801::2003 (2800:3f0:4001:801::2003): icmp_seq=6 ttl=117 time=7.41 ms
+64 bytes from 2800:3f0:4001:801::2003 (2800:3f0:4001:801::2003): icmp_seq=7 ttl=117 time=5.05 ms
+^C
+--- google.com.br ping statistics ---
+7 packets transmitted, 7 received, 0% packet loss, time 17ms
+rtt min/avg/max/mdev = 4.693/7.202/10.534/1.974 ms
+root@AstNovatec:~#
+
