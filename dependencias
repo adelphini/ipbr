@@ -1,0 +1,28 @@
+# apt update && apt -y upgrade && apt -y dist-upgrade && reboot
+
+root@AstNovatec:~# uname -r
+4.19.0-17-amd64
+root@AstNovatec:~# 
+
+# apt -y install linux-perf-4.19
+# apt -y install linux-headers-4.19.0-17-all
+# apt -y install -f
+
+# apt -y install build-essential git-all subversion
+
+# apt -y install vim vim-nox lua5.2 gcc g++ libncurses5-dev libxml2 libxml2-dev openssl 
+# apt -y install libnewt-dev zlib1g zlib1g-dev unixodbc unixodbc-dev libtool make tar
+# apt -y install libgmime-2.6-0 libgmime-2.6-dev wget gcc-4.9 libc++-dev libdap-dev
+# apt -y install libzzip-dev libcrypt-openssl-rsa-perl libssl-ocaml-dev htop mtr-tiny 
+# apt -y install libsrtp2-1 libsrtp2-1-dbg libsrtp2-dev libsrtp2-docs libncurses6 libncursesw6  
+# apt -y install libcrypt-mysql-perl default-libmysqlclient-dev libssl-dev
+# apt -y install libnewt-dev lua-zlib-dev libghc-zlib-dev uuid uuid-dev uuid-runtime
+# apt -y install doxygen vorbis-tools libvorbis0a libvorbis-dev 
+# apt -y install libspeex1 libspeex-dev libspeexdsp1 libspeexdsp-dev speex
+# apt -y install libogg0 libogg-dbg libogg-dev curl libidn11 libidn11-dev 
+# apt -y install festival festival-dev festival-doc festival-freebsoft-utils
+# apt -y install libmad-ocaml libmad-ocaml-dev 
+
+# apt -y install -f
+
+# apt update && apt -y upgrade && apt -y dist-upgrade && reboot
