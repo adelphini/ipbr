@@ -2,6 +2,7 @@ root@AstNovatec:~# apt -y install vim
 root@AstNovatec:~# vim /etc/network/interfaces
 
 -- (Início do arquivo interface) /etc/network/interface --
+
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
 
@@ -26,11 +27,9 @@ iface enp0s3 inet static
         network 192.168.15.0
         broadcast 192.168.15.255
         gateway 192.168.15.1
-        dns-nameserver 208.67.222.222
-        dns-nameserver 208.67.220.220
-        dns-nameserver 8.8.8.8
-        dns-nameserver 8.8.4.4
+        dns-nameservers 208.67.222.222 208.67.220.220 8.8.8.8 8.8.4.4
         dns-search google.com
+
 -- (Final do arquivo interface) /etc/network/interface --
 
 root@AstNovatec:~# reboot
