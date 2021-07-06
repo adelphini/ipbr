@@ -1,0 +1,138 @@
+# cd /usr/local/src/ 
+/usr/local/src/# wget https://ftp.osuosl.org/pub/xiph/releases/speex/speexdsp-1.2rc3.tar.gz
+/usr/local/src/# tar -zxvf speexdsp-1.2rc3.tar.gz
+/usr/local/src/# cd speex-1.2rc2/
+/usr/local/src/speexdsp-1.2rc3# ./configure --prefix=/usr
+/usr/local/src/speexdsp-1.2rc3# make 
+/usr/local/src/speexdsp-1.2rc3# make install
+/usr/local/src/speexdsp-1.2rc3# cd ..
+/usr/local/src/#
+
+/usr/local/src/# wget https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz
+/usr/local/src/# tar -zxvf lame-3.100.tar.gz
+/usr/local/src/# cd lame-3.100/
+/usr/local/src/lame-3.100# ./configure --prefix=/usr
+/usr/local/src/lame-3.100# make
+/usr/local/src/lame-3.100# make install
+/usr/local/src/lame-3.100# cd ..
+
+/usr/local/src/# apt -y install libmad0-dev libmadlib libmadlib-dev
+
+/usr/local/src/# wget https://www.wavpack.com/wavpack-5.4.0.tar.bz2
+/usr/local/src/# tar -xvf wavpack-5.4.0.tar.bz2
+/usr/local/src/# cd wavpack-5.4.0
+/usr/local/src/wavpack-5.4.0# ./configure --prefix=/usr
+/usr/local/src/wavpack-5.4.0# make
+/usr/local/src/wavpack-5.4.0# make install
+/usr/local/src/wavpack-5.4.0# cd ..
+
+/usr/local/src/# wget http://downloads.asterisk.org/pub/telephony/dahdi-linux-complete/dahdi-linux-complete-3.1.0+3.1.0.tar.gz
+/usr/local/src/# tar -zxvf dahdi-linux-complete-3.1.0+3.1.0.tar.gz
+/usr/local/src/# cd dahdi-linux-complete-3.1.0+3.1.0/
+/usr/local/src/dahdi-linux-complete-3.1.0+3.1.0# make 
+/usr/local/src/dahdi-linux-complete-3.1.0+3.1.0# make install
+/usr/local/src/dahdi-linux-complete-3.1.0+3.1.0# make install-config
+/usr/local/src/dahdi-linux-complete-3.1.0+3.1.0# cd ..
+
+/usr/local/src/# wget http://downloads.asterisk.org/pub/telephony/libpri/libpri-1.6.0.tar.gz
+/usr/local/src/# tar -zxvf libpri-1.6.0.tar.gz
+/usr/local/src/# cd libpri-1.6.0/
+/usr/local/src/libpri-1.6.0# make 
+/usr/local/src/libpri-1.6.0# make install
+/usr/local/src/libpri-1.6.0# cd ..
+
+root@AstNovatec:/# apt update
+root@AstNovatec:/# apt -y install libtiff5 libtiff5-dev libxml2 libxml2-dev libxml2-utils
+root@AstNovatec:/# apt -y install libspandsp2 libspandsp-dev libspandsp-doc
+
+root@AstNovatec:/# apt -y install -f
+root@AstNovatec:/# apt update
+root@AstNovatec:/# apt -y install libcurl3-gnutls libcurl4-gnutls-dev 
+root@AstNovatec:/# apt -y install libneon27-gnutls libneon27-gnutls-dev
+root@AstNovatec:/# apt -y install python-gnutls python3-pycurl
+root@AstNovatec:/# apt -y install libgnutlsxx28 libgnutls28-dev libgnutls30 python-gnutls
+root@AstNovatec:/# apt -y install libiksemel3 libiksemel-dev libiksemel-utils
+
+root@AstNovatec:/# apt -y install sendmail mailutils
+
+root@AstNovatec:/# cd /etc/mail
+root@AstNovatec:/# mkdir -m 700 authinfo
+root@AstNovatec:/# cd authinfo/
+root@AstNovatec:/# vim gmail
+
+AuthInfo: "U:root" "I:seu-mail@gmail.com" "P:seu-password"
+
+root@AstNovatec:/# makemap hash gmail < gmail
+
+root@AstNovatec:/etc/mail/authinfo# cd ..
+root@AstNovatec:/etc/mail# vim sendmail.mc
+dnl # GMail settings
+define(`SMART_HOST',`[smtp.gmail.com]')dnl
+define(`RELAY_MAILER_ARGS', `TCP $h 587')dnl
+define(`ESMTP_MAILER_ARGS', `TCP $h 587')dnl
+define(`confAUTH_OPTIONS', `A p')dnl
+TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+FEATURE(`authinfo',`hash -o /etc/mail/authinfo/gmail.db')dnl
+
+root@AstNovatec:# cd /etc/mail
+root@AstNovatec:/etc/mail# make
+root@AstNovatec:/etc/mail# /etc/init.d/sendmail reload
+
+root@AstNovatec:# echo "Softswitch PBX IP AstNovatec" | mail -s "Um livro interessante" seu-mail@gmail.com
+
+root@AstNovatec:# apt -y install snmp libsnmp-dev libsnmp30 python-netsnmp
+
+root@AstNovatec:# apt -y install corosync corosync-doc corosync-notifyd libcorosync-common-dev
+
+root@AstNovatec:# apt -y install lua5.3 liblua5.3-0 liblua5.3-dev
+
+root@AstNovatec:# cd /usr/local/src
+root@AstNovatec:/usr/local/src# wget https://fossies.org/linux/www/neon-0.31.2.tar.gz
+root@AstNovatec:/usr/local/src# tar -zxvf neon-0.31.2.tar.gz
+root@AstNovatec:/usr/local/src# cd neon-0.31.2/
+root@AstNovatec:/usr/local/src/neon-0.31.2# ./configure prefix=/usr --with-ssl=openssl --libdir=/usr/lib64
+root@AstNovatec:/usr/local/src/neon-0.31.2# make 
+root@AstNovatec:/usr/local/src/neon-0.31.2# make install
+
+root@AstNovatec:/usr/local/src# apt -y install -f
+root@AstNovatec:/usr/local/src# apt update
+root@AstNovatec:/usr/local/src# apt -y install libsrtp2-1 libsrtp2-dev libsrtp2-docs
+
+root@AstNovatec:/usr/local/src# apt -y install -f
+root@AstNovatec:/usr/local/src# apt update
+root@AstNovatec:/usr/local/src# apt -y install libjansson4 libjansson-dev libjansson-doc
+
+root@AstNovatec:/usr/local/src# apt -y install -f
+root@AstNovatec:/usr/local/src# apt update
+root@AstNovatec:/usr/local/src# apt -y install libportaudio2 portaudio19-doc portaudio19-dev libportaudiocpp0
+root@AstNovatec:/usr/local/src# apt -y install python python-dev xmlstarlet
+root@AstNovatec:/usr/local/src# apt -y update && apt -y upgrade && apt -y dist-upgrade && reboot
+
+
+root@AstNovatec:~# cd /usr/local/src/
+root@AstNovatec:/usr/local/src# wget http://downloads.asterisk.org/pub/telephony/certified-asterisk/asterisk-certified-16.8-current.tar.gz
+root@AstNovatec:/usr/local/src# tar -zxvf asterisk-certified-16.8-current.tar.gz
+root@AstNovatec:/usr/local/src# cd asterisk-certified-16.8-cert9/
+root@AstNovatec:/usr/local/src/ asterisk-certified-16.8-cert9# contrib/scripts/install_prereq install
+
+root@AstNovatec:/usr/local/src/ asterisk-certified-16.8-cert9# cd ..
+root@AstNovatec:/usr/local/src# git clone git://github.com/asterisk/pjproject pjproject
+root@AstNovatec:/usr/local/src# cd pjproject/
+root@AstNovatec:/usr/local/src /pjproject# ./configure --prefix=/usr --enable-shared --disable-sound --disable-resample --disable-video --disable-opencore-amr CFLAGS='-O2 -DNDEBUG'
+root@AstNovatec:/usr/local/src /pjproject# make dep
+root@AstNovatec:/usr/local/src /pjproject# make && make install
+root@AstNovatec:/usr/local/src /pjproject# ldconfig 
+root@AstNovatec:/usr/local/src /pjproject# ldconfig -p | grep pj
+	libpjsua2.so.2 (libc6,x86-64) => /usr/lib/libpjsua2.so.2
+      	libpjsua2.so (libc6,x86-64) => /usr/lib/libpjsua2.so
+      	libpjsua.so.2 (libc6,x86-64) => /usr/lib/libpjsua.so.2
+      	libpjsua.so (libc6,x86-64) => /usr/lib/libpjsua.so
+      	...
+
+root@AstNovatec:/usr/local/src /pjproject# cd ../asterisk-certified-16.8-cert9/
+root@AstNovatec:/usr/local/src/asterisk-certified-13.21-cert2# contrib/scripts/install_prereq install-unpackaged
+root@AstNovatec:/usr/local/src/asterisk-certified-13.21-cert2# ./configure && make menuselect && make && make install
+
+
+
