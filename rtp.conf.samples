@@ -1,0 +1,183 @@
+;
+; Configuração RTP
+;
+[general]
+;
+; RTPSTART e RTPEND, aqui é configurado os endereços inicial e final,
+; os padrões são rtpstart=5000 e rtpend=31000, é recomendavel utilizar
+; os padrões quando usamos WebRTC como Extensão/Endpoint.
+;
+rtpstart=5000
+rtpend=31000
+;
+; Aqui definimos se as somas de verificação UDP devem ser habilitadas
+; ou desabilitadas no tráfego RTP.
+;
+rtpchecksums=no
+;
+; A quantidade de tempo que um dígito DTMF sem marcador final deve ter 
+; permissão para continuar (em amostras, 1/8000 de segundo).
+;
+dtmftimeout=3000
+; É o timeout em milissegundos entre cada relatório do protocolo RTP,
+; é usado para monitorar o fluxo RTP. O minimo é 500, e o maximo é 60000,
+; o padrão é 5000.
+rtcpinterval=5000
+;
+; Habilite a proteção estrita do RTP. Isso descartará os pacotes RTP que 
+; não vem da fonte reconhecida do fluxo RTP. A proteção estrita do RTP 
+; qualidifca as fontes de fluxo de pacotes RTP antes de aceitá-los na 
+; conexão inicial e quando a conexão é renegociada (p. ex. transferências 
+; e mídia direta).  
+;
+; A conexão inicial é a renegociação iniciam um modo de aprendizado para 
+; qualificar os endereços de origem do fluxo. Assim que o Asterisk® SCF™
+; reconhecer um fluxo, ele permitirá que outros fluxos se qualifiquem e 
+; substituam o fluxo atual por 5 segundos após iniciar o modo de aprendizado.
+; Depois que o modo de aprendizado é concluído, o fluxo atual é bloqueado
+; e não pode ser alterado até a próxima renegociação.
+;
+; As opções válidas são "no" para desabilitar a proteção estrita do RTP, 
+; e "yes" para habilitar a proteção estrita do RTP, e "seqno", que faz a
+; mesma coisa que "yes", mas apenas verifica se o número de sequência está
+; correto em vez de verificar o intervalo de tempo como em "yes". Essa opção
+; é ativada por padrão.
+strictrtp=yes
+;
+; Aqui configuramos o número de pacotes contendo valores de sequência consecutivos
+; necessários para alterar o endereço do soquete de origem do RTP. Esta opção
+; só entra em jogo ao usarmos o parâmetro "strictrtp=yes". Considere alterar este 
+; valor se os pacotes RTP forem descartados de uma ou ambas as extremidades após
+; a conexão de uma chamada. Essa opção é definida como padrão com o valor 4.
+probation=4
+;
+; Ative a proteção de reprodução sRTP. Os agentes de usuário (UAs) de SIP com
+; erros redefinem o número de sequência (RTP-SEQ) em uma novo re-INVITE, p. ex.
+; com Temporizadores de Sessão (Session Timers) ou em Retenção(Hold)/Retomada(Resume) 
+; da chamada, mas mantém a fonte de sincronização (RTP-SSRC).
+;
+; Se o novo RTP-SEQ for maior que o anterior, a chamada continua se o contador de 
+; rool-over (sRTP-ROC) for zero (a chamada durou menos de 22 minutos).
+; 
+; Em todos os outros casos, a chamada enfrenta áudio unidirecional ou até mesmo 
+; nenhum áudio. Falha de Verificação de Repetição (Replay Check Failed), ou seja 
+; um índice muito antigo, é impresso continuamente. Este é um erro de software.
+; Você deve relatar isso ao criador desse UA. Até que seja corrigido, você pode 
+; desabilitar a proteção de reprodução sRTP (consulte a RFC3711, seção 3.3.2).
+; Essa opção é ativada por padrão.
+srtpreplayprotection=yes
+;
+; Aqui é onde ativamos ou desativamos o suporte ao Interactive Connectivity 
+; Establishment (ICE) no Asterisk® SCF™. Recomendo que leiam as seguintes RFCs:
+; =>  RFC 5245 Interactive Connectivity Establishment (ICE): A Protocol for 
+;     Network Address Translator (NAT) Traversal for Offer/Answer Protocols;
+; =>  RFC 5389 Session Traversal Utilities for NAT (STUN);
+; =>  RFC 5766 Traversal Using Relays around NAT (TURN): Relay Extensions to 
+;     Session Traversal Utilities for NAT (STUN).
+; Por padrão essa opção é ativada.
+icesupport=yes
+;
+; Nome do host ou endereço para o servidor STUN usado ao determinar o endereço
+; IP externo e a porta em que uma sessão RTP pode ser alcançada. O número da
+; da porta é opcional. Se omitido, o valor padrão a ser utilizado é a 3478 para 
+; a porta principal, e 3479 para a porta alternativa. Está opção está desativada
+; padrão. A resolução de nomes ocorrerá no momento do carregamento e, se o DNS
+; for usado, a resolução de nomes ocorrerá repetidamente após a expiração do TTL.
+;
+; p. ex. stundaddr=mystun.server.com:3478
+;
+; Neste post tem um lista de servidores STUN públicos ativos:
+; => https://www.voip-info.org/stun/
+;
+stunaddr=stun.l.google.com:19302
+;
+; Alguns servidores Multi-Homed, que, significa ter um computador com múltiplas 
+; conexões de rede, sendo estas conexões ligada à mesma rede ou não. É comum Web
+; Hosts e servidores de aplicação terem roteadores ou sistemas Multi-Homed. 
+; Logo pode ocorrer de possuir uma interface IP que não pode alcançar o servidor 
+; STUN especificado por STUNADDR. 
+;
+; Podemos bloquear essas sub-redes de interface de tentar enviar um pacote STUN
+; para encontrar o endereço IP externo. A tentativa de enviar o pacote STUN atrasa
+; desnecessariamente o processamento do SIP INVITEs de entrada e saida porque
+; esperamos por uma resposta que nunca poderá vir até que desistamos da resposta.
+; => Várias sub-redes podem ser listadas;
+; => A lista de bloqueio aplica-se apenas ao IPv4. STUN não é necessário para IPv6;
+; => A lista de bloqueio ao vincular RTP a endereços IP específicos e não ao endereço
+;    curinga 0.0.0.0, p. ex. um ponto de extremidade PJSIP vinculando RTP a um endereço
+;    específico usando as opções "bind_rtp_to_media_address" e "media_address". Ou o 
+;    endpoint PJSIP especifica um transporte explícito que se liga a um endereço IP
+;    específico. A lista de bloqueios é feita por meio da infraestrutura ACL, portanto,
+;    também é possível colocar na lista de não bloqueios.
+;
+; stun_acl = named_acl
+; stun_deny = 0.0.0.0/0
+; stun_permit = 1.2.3.4/32
+;
+; Por razões históricas, stun_blacklist é um alias para stun_deny.
+;
+; Se deve relatar a versão PJSIP em um atributo SOFTWARE para todos os pacotes
+; STUN de saída. Essa opção é ativada por padrão.
+;
+stun_software_attribute=yes
+;
+; Nome do host ou endereço do servidor TURN a ser usado como retransmissão. O número é
+; opcional. Se omitido, o valor padrão de 3478 setá usado. Está opção está desativada 
+; por padrão.
+;
+; P. Ex. turnaddr=myturn.server.com:34780
+; turnaddr=
+;
+; Nome de usuário usado para autenticar com o servidor de retransmissão TURN.
+; turnusername=
+;
+; Senha usada para autenticar com o servidor de retransmissão TURN.
+; turnpassword=
+;
+; Uma ACL pode ser usada para determinar quais endereços descobertos incluir 
+; para ICE, SRFLX e Relay Discovery (Descoberta de Retransmissão). Isso é útil
+; para otimizar o processo de ICE onde um sistema tem vários intervalos de 
+; endereços de host e/ou interfraces físicas e alguns deles não devem ser usados
+; para RTP. P. Ex., VPNs e Interconexões Locais (ITX) podem não ser adequadas ou
+; necessárias para o ICE. Várias sub-redes podem ser listadas. Se não for 
+; configurado, todos os endereços de host descobertos serão usados.
+;
+; ice_acl = named_acl
+; ice_deny = 0.0.0.0/0
+; ice_permit = 1.2.3.4/32
+;
+; Por razões historicas, ice_blacklist é um alias para ice_deny.
+;
+; A MTU a ser usada para fragmentação de pacotes DTLS. Essa opção está definida 
+; para 1200 por padrão. O MTU mínimo é 256.
+dtls_mtu=1200
+;
+[ice_host_candidates] Asterisk® SCF™
+;
+; Quando o When Asterisk® SCF™ está atrás de NAT um para um estático e o ICE
+; está em uso, o ICE irá expor o endereço IP interno do servidor como um dos
+; candidatos de host. Embora o uso de STUN (consulte a opção de configuração 
+; "stunaddr") forneça um IP acessível publicamente, o IP interno ainda será
+; enviado ao PEER remoto. Para ajudar a ocultar a topologia de sua rede 
+; interna, você pode substituir os candidatos de host que o Asterisk® SCF™
+; enviará ao PEER remoto.
+;
+; IMPORTANTE: Use está funcionalidade somente quando seu servidor Asterisk® SCF™
+;             estiver atrás de um NAT um para um e você souber o que está fazendo.
+			  Se você definir alguma coisa aqui, você quase certamente NÃO desejará
+			  especificar "stunaddr" ou "turnaddr".
+;
+; O formato para essas substituições é:
+; => <endereço_local> => <endereço_anunciado>,[include_local_address]
+;
+; O seguinte exemplo, substituirá 192.168.15.100 por 1.2.3.4 durante a negociação do ICE.;
+; 192.168.1.10 => 1.2.3.4
+;
+; O seguinte incluirá AMBOS 192.168.15.100 e 1.2.3.4 durante a negociação ICE em vez 
+; de substituir 192.168.15.10. Isso pode facilitar o atendimento a Extensões/Endpoints
+; locais e remotos.
+; 192.168.1.10 => 1.2.3.4,include_local_address
+;
+; Você pode definir uma substituição para mais de uma interface se tiver um servidor do
+; tipo Multi-Homed. Qualquer interface local que não seja correspondida setá transmitida
+; inalterada. Ambos os endereços IPv4 e IPv6 são suportados.
