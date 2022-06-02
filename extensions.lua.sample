@@ -1,0 +1,237 @@
+
+
+CONSOLE = "Console/dsp" -- Interface do console para demostração
+--CONSOLE = "DAHDI/1"
+--CONSOLE = "Phone/phone0"
+
+IAXINFO = "guest"       -- Peering IAX username/password
+--IAXINFO = "myuser:mypass"
+
+TRUNK = "DAHDI/G2"
+TRUNKMSD = 1
+-- TRUNK = "IAX2/user:pass@provider"
+
+
+--
+-- As extensões devem ser definidas em uma tabela global chamada 'EXTENSIONS' (extensões). A tabela
+-- 'extensões' deve ter um grupo de tabelas, cada uma representando um contexto. As extensões são 
+-- definidas em cada contexto. Veja abaixo exemplos.
+--
+-- Os nomes das extensões podem ser números, letras ou suas combinações. Se um nome de extensão for
+-- prefixado por um caractere '_', ele será interpretado como um PATTERN (padrão) em vez de um literal.
+-- Nos padrões, alguns caracteres têm significados especiais:
+--
+--   X - qualquer dígito de 0-9
+--   Z - qualquer dígito de 1-9
+--   N - qualquer dígito de
+--   [1235-9] - qualquer dígito entre colchetes (neste exemplo, 1,2,3,5,6,7,8,9)
+--   . - wildcard (curinga), corresponde a qualquer coisa restante (p. ex. _9011.
+--       corresponde a qualquer coisa que comece com 9011, excluindo o próprio 9011)
+--   ! - wildcard (curinga), faz com que o processo de correspondência seja cncluído 
+--       assim que puder determinar inequivocamente que nenhuma utra correspondência 
+--       é possivel.
+--
+-- P. Ex. A extensão _NXXXXXX (9 2344 1112) corresponderia às discagens normais de 7 (SETE) dígitos, 
+-- enquanto _1NXXNXXXXX representaria um código de área mais um número de telefone 
+-- precedido por um (11 2344 1112).
+--
+-- Se sua extensão tiver caracteres especiais como "." e "!" você deve explicitamente
+-- torná-lo uma string na definição da tabela.
+--
+--   ["_special."] = function;
+--   ["_special!"] = function;
+--
+-- Não há prioridades. Todas as extensões ao Asterisk® SCF™ parecem ter uma únida prioridade,
+-- como se consistissem em uma única prioridade.
+--
+-- Cada contexto é definido como uma tabela na tabela de extensões.
+-- Os nomes de contexto devem ser strings.
+--
+-- Um contexto pode ser incluído em outro contexto usando a extensão "includes". Esta extensão
+-- deve ser definida para uma tabela contendo uma lista de nomes de contexto. Não coloque referência
+-- a tabelas na tabela de "includes".
+--
+--   include = {"a", "b", "c"};
+--
+-- As variáveis de canal (Channel) podem ser acessadas através da tabela global de canais (channel).
+--
+--   v = channel.var_name
+--   v = channel["var_name"]
+--   v.value
+--   v:get()
+--
+--   channel.var_name = "value"
+--   channel["var_name"] = "value"
+--   v:set("value")
+--
+--   channel.func_name(1,2,3):set("value")
+--   value = channel.func_name(1,2,3):get()
+--
+--   channel["func_name(1,2,3)"]:set("value")
+--   channel["func_name(1,2,3)"] = "value"
+--   value = channel["func_name(1,2,3)"]:get()
+--
+-- Observe o uso do operador ":" para acessar os métodos "get()" e "set()".
+--
+-- Observe também a ausência das seguintes construções nos exemplos acima:
+--   channel.func_name(1,2,3) = "value"  -- isso NÃO vai funcionar!
+--   value = channel.func_name(1,2,3)    -- isso NÃO vai funcionar como esperado!
+--
+--
+-- Os aplicativos Dialplan pode ser acessados através da tabela global "app".
+--
+--    app.Dial("DAHDI/1")
+--    app.dial("DAHDI/1")
+--    app["dial"]("DAHDI/1")
+--
+-- Mais exemplos podem ser encontrados abaixo.
+--
+-- Um autoservice é automaticamente enquanto o código LUA está sendo executado.
+-- O autoservice pode ser interrrompido e reiniciado usando as funções "autoservice_stop()"
+-- e "autoservice_start()". O autoservice deve estar em execução antes de iniciar a operação
+-- de longa duração. O autoservice será interrompido automaticamente antes da execução de 
+-- aplicativos(applications) e funções(functions) do Dialplan e será reiniciado posteriormente.
+-- A função "autoservice_status()" pode ser usada para verificar o status atual do autoservice 
+-- e retornará "TRUE" se um autoservice estiver em execução.
+--
+-- Observação sobre conflitos de nomenclatura:
+-- LUA permite que você faça referência a entrada de tabela usando o "." notação, 
+-- P. Ex. app.goto(algumacoisa), somente se a entrada não entrar em conflito com
+-- uma palavra reservada de LUA. No exemplo "goto", com LUA 5.1 ou anterior, "goto"
+-- não é uma palavra reservada, então você chamaria o aplicativo do Dialplan do 
+-- Asterisk® SCF™ "goto". Já em LUA 5.2 no entanto, introduziu a instrução de controle
+-- "goto" que torna o "goto" uma palavra reservada. Isso faz com que o interpretador 
+-- falhe ao analisar o arquivo e o módulo "pbx_lua.so" falhará ao carregar. O mesmo
+-- se aplica a qualquer uso de tabelas LUA, incluindo extensões, canais e quaisquer
+-- tabelas que você criar.
+--
+-- Há duas maneiras de contornar isso: Como LUA faz distinção entre "Maiúsculas" e "Minúsculas",
+-- você pode usar nomes em Maiúsculas, P. Ex. "app.Goto(algumacoisa)" para se referir aos aplicativos,
+-- funções, etc. do Asterisk® SCF™. Ou você pode usar a sintaxe completa, P. Ex. app["goto"](algumacoisa).
+-- 
+-- Ambas as sintaxes são compatíveis com versões anteriores de LUA. Para tornar seus Dialplans em LUA 
+-- fáceis de manter e reduzir a chance de conflitos futuros com palavras reservadas, vocẽ pode usar a 
+-- sintaxe completa "app["goto"](algumacoisa)" para todos os acessos à tabela.
+--
+
+function outgoing_local(c, e)
+	app.dial("DAHDI/1/" .. e, "", "")
+end
+
+function demo_instruct()
+	app.background("demo-instruct")
+	app.waitexten()
+end
+
+function demo_congrats()
+	app.background("demo-congrats")
+	demo_instruct()
+end
+
+-- Atenda o canal e toque os arquivos de áudio de demostraço.
+function demo_start(context, exten)
+	app.wait(1)
+	app.answer()
+
+	channel.TIMEOUT("digit"):set(5)
+	channel.TIMEOUT("response"):set(10)
+	-- app.set("TIMEOUT(digit)=5")
+	-- app.set("TIMEOUT(response)=10")
+
+	demo_congrats(context, exten)
+end
+
+function demo_hangup()
+	app.playback("demo-thanks")
+	app.hangup()
+end
+
+extensions = {
+	demo = {
+		s = demo_start;
+
+		["2"] = function()
+			app.background("demo-moreinfo")
+			demo_instruct()
+		end;
+		["3"] = function ()
+			channel.LANGUAGE():set("fr") -- definindo os áudios para Francês.
+			demo_congrats()
+		end;
+
+		["1000"] = function()
+			-- Consulte a nota de conflito de palavras reservadas acima.
+			app['goto']("default", "s", 1)
+		end;
+
+		["1234"] = function()
+			app.playback("transfer", "skip")
+			-- do a dial here
+		end;
+
+		["1235"] = function()
+			app.voicemail("1234", "u")
+		end;
+
+		["1236"] = function()
+			app.dial("Console/dsp")
+			app.voicemail(1234, "b")
+		end;
+
+		["#"] = demo_hangup;
+		t = demo_hangup;
+                i = function()
+                        app.playback("invalid")
+                        demo_instruct()
+                end;
+
+		["500"] = function()
+			app.playback("demo-abouttotry")
+			app.dial("IAX2/guest@misery.digium.com/s@default")
+			app.playback("demo-nogo")
+			demo_instruct()
+		end;
+
+		["600"] = function()
+			app.playback("demo-echotest")
+			app.echo()
+			app.playback("demo-echodone")
+			demo_instruct()
+		end;
+
+		["8500"] = function()
+			app.voicemailmain()
+			demo_instruct()
+		end;
+
+	};
+
+	default = {
+		-- Por padrão, faça a demostração
+		include = {"demo"};
+	};
+
+	public = {
+		-- ATENÇÃO: Se o seu Asterisk® SCF™ estiver conectado à Internet e você
+		-- não tiver "allowguest=no" no "sip.conf", todos podem usar seu contexto
+		-- público sem autenticação. Nesse caso, você deseja verificar novamente
+		-- quais serviços você oferece ao mundo.
+		--
+		include = {"demo"};
+	};
+
+	["local"] = {
+		["_NXXXXXX"] = outgoing_local;
+	};
+}
+
+hints = {
+	demo = {
+		[1000] = "SIP/1000";
+		[1001] = "SIP/1001";
+	};
+
+	default = {
+		["1234"] = "SIP/1234";
+	};
+}
