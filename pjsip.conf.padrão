@@ -1,0 +1,269 @@
+;Amostras de configuração PJSIP e referência rápida
+;
+; Este arquivo tem vários exemplos de configuração muito básicos, para servir como uma referência rápida para 
+; refrescar sua memória quando você precisar escrever uma nova configuração. Não se destina a ensinar a confi-
+; guração do PJSIP ou servir como uma referência exaustiva de opções e potenciais cenários.
+;
+; Este arquivo tem duas seções principais.
+; Primeiro, exemplos escritos manualmente para servir como uma referência útil.
+; Em segundo lugar, uma lista de todas as opções de configuração PJSIP possíveis por seção. 
+; Isso é extraído da ajuda de configuração XML. Mostra apenas a sinopse de cada item.
+; Se você quiser ver mais detalhes, verifique as fontes de documentação mencionadas na parte superior deste arquivo.
+;
+; ================================================================================
+;       AVISO AVISO AVISO AVISO AVISO AVISO AVISO AVISO AVISO AVISO AVISO
+;           Este arquivo não mantém a documentação completa das opções.
+; ================================================================================
+;
+; Documentação
+;
+; A documentação oficial está em http://wiki.asterisk.org.
+; Você pode ler a ajuda da configuração XML via linha de comando do Asterisk com "config show help res_pjsip", 
+; então você pode detalhar as várias seções e suas opções.
+;
+;==========!!!!!!!!!!!!!!!!!!!! AVISO DE SEGURANÇA!!!!!!!!!!!!!!!!!!!!=============
+;
+; No mínimo, leia o arquivo "README-SERIOUSLY.bestpractices.txt", localizado no diretório fonte do Asterisk antes 
+; de iniciar o Asterisk.
+;
+; Caso contrário, você corre o risco de comprometer a segurança do sistema Asterisk. Além disso, visite e leia as 
+; informações de segurança no wiki em: https://wiki.asterisk.org/wiki/x/EwFB
+;
+; Alguns princípios básicos para prestar atenção:
+;
+; Chamadas Anônimas
+;
+; Por padrão, chamadas de entrada anônimas via PJSIP não são permitidas. Se você deseja rotear chamadas anônimas, 
+; precisará definir um terminal chamado "anônimo". res_pjsip_endpoint_identifier_anonymous.so lida com essa 
+; funcionalidade para que ela seja carregada. Não é recomendado aceitar chamadas anônimas.
+;
+; Listas de controle de acesso - ACL
+;
+; Veja o exemplo de configuração de ACL neste arquivo. Leia a ajuda de configuração para a seção e todas as suas opções. 
+; Examine as amostras em acl.conf e a documentação em https://wiki.asterisk.org/wiki/x/uA80AQ
+; Se possível, restrinja o acesso apenas a redes e endereços confiáveis.
+;
+; Contextos Dialplan
+;
+; Ao definir a configuração (como um endpoint) que se vincula à configuração do Dialplan, esteja ciente do que esse Dialplan faz. 
+; É fácil fornecer acidentalmente acesso a ramais (Pattern) de comutação interna ou externa, o que pode custar caro. 
+; A linha "context=" na configuração do endpoint determina em qual contexto do Dialplan as chamadas de entrada serão entregues.
+;
+; Visão geral dos tipos de seção das configurações usados nos exemplos
+; * Transport "transport";
+;   * Configura a interação da camada de transporte res_pjsip.
+; * Endpoint "endpoint";
+;   * Configura a funcionalidade principal do SIP relacionada aos terminais (endpoint) SIP.
+; * Authentication "auth";
+;   * Armazena credenciais de autenticação de entrada ou saída para uso por troncos (trunks), 
+;     endpoints e registradores (registrations).
+; * Address of Record "aor";
+;   * Armazena informações de contato para uso dos endpoints.
+; * Endpoint Identification "identify";
+;   * Mapeia um host diretamente para um endpoint.
+; * Access Control List "acl";
+;   * Define uma lista de permissões ou faz referência a uma armazenada em acl.conf.
+; * Registration "registration";
+;   * Contém informações sobre um registro SIP de saída.
+; * Resource Lists;
+;   * Contém informações para configurar listas de recursos.
+; * Phone Provisioning "phoneprov";
+;   * Contém informações necessárias para res_phoneprov para provisionamento automático.
+; As seções a seguir mostram configurações de exemplo para vários cenários.
+; A maioria requer alguns ou mais tipos de configuração configurados em conjunto.
+;
+; ========================================================================================
+; Nomenclatura das seções de configuração
+;
+; Os nomes das seções de configuração são indicados entre colchetes, por exemplo [6001] Na maioria dos casos, 
+; você pode nomear uma seção da maneira que fizer sentido para você. Por exemplo, você pode nomear um transporte 
+; [transport-udp-nat] para ajudá-lo a lembrar como essa seção está sendo usada. No entanto, em alguns casos, 
+; (tipos "endpoint" e "aor") o nome da seção tem uma relação com sua função.
+;
+; Dependendo dos módulos carregados, o Asterisk pode combinar requisições SIP para um endpoint ou aor de algumas maneiras:
+; 
+; 1) Combine um nome de seção para seções de tipo de terminal com o nome de usuário no cabeçalho "From" das solicitações 
+;    SIP de entrada.
+; 2) Combine um nome de seção para ou digite seções com o nome de usuário no cabeçalho "To" das solicitações SIP REGISTER 
+;    de entrada.
+; 3) Com uma seção de tipo de identificação configurada, corresponda uma solicitação SIP de entrada de qualquer tipo a um 
+; endpoint ou aor com base no endereço IP de origem da solicitação.
+;
+; Observe que as seções podem ter o mesmo nome, desde que suas opções de "type (tipo)" sejam definidas com valores diferentes. 
+; Na maioria dos casos, faz sentido que as seções de configuração associadas usem o mesmo nome, como você verá nos exemplos 
+; deste arquivo.
+;
+;===============EXEMPLO DE TRANSPORTES================================================
+;
+; Alguns exemplos de possíveis opções de transporte.
+; Para o exemplo de transporte NAT, lembre-se de que as opções iniciadas com o prefixo "external_" só se aplicarão à 
+; comunicação com endereços fora do intervalo definido com "local_net=".
+;
+; Você pode ter mais de um de qualquer tipo de transporte, desde que não use os mesmos recursos (bind address (endereço 
+; de ligação), port (porta), etc) que os outros.
+;
+; Transporte UDP básico
+;
+;[transport-udp]
+; type=transport
+; protocol=udp    ;udp,tcp,tls,ws,wss,flow
+; bind=0.0.0.0
+;
+; Transporte UDP por trás do NAT
+;[transport-udp-nat]
+; type=transport
+; protocol=udp
+; bind=0.0.0.0
+; local_net=192.0.2.0/24
+; external_media_address=203.0.113.1
+; external_signaling_address=203.0.113.1
+;
+; Transporte UDP IPv6 básico
+;
+;[transport-udp-ipv6]
+; type=transport
+; protocol=udp
+; bind=::
+;
+; Exemplo de transporte IPv4 TLS
+;
+;[transport-tls]
+; type=transport
+; protocol=tls
+; bind=0.0.0.0
+; cert_file=/path/mycert.crt
+; priv_key_file=/path/mykey.key
+; cipher=ADH-AES256-SHA,ADH-AES128-SHA
+; method=tlsv1
+; Transporte de fluxo de exemplo
+;
+; Um transporte de fluxo é usado para referenciar um fluxo de sinalização com um alvo específico. Todos os pontos de 
+; extremidade ou outros objetos que fazem referência ao transporte usarão o mesmo transporte subjacente e podem compar-
+; tilhar a configuração de transporte descoberta em tempo de execução (como rotas de serviço). O protocolo em uso será 
+; determinado com base no URI usado para estabelecer a conexão. Atualmente, apenas TCP e TLS são suportados.
+;
+;[transport-flow]
+;type=transport
+;protocol=flow
+;
+;===============REGISTRO DE SAÍDA COM AUTENTICAÇÃO DE SAÍDA============
+;
+; Este é um registro simples que funciona com alguns provedores de entroncamento SIP (ITSP - Internet Telephony Service Provider).
+; Você precisará configurar o exemplo de autenticação "mytrunk_auth" abaixo para habilitar a autenticação de saída. Observe que 
+; usamos "outbound_auth=" para autenticação de saída em vez de "auth=", que é para autenticação de entrada.
+;
+; Se você estiver se registrando em um servidor por trás do NAT, certifique-se de atribuir um transporte que esteja configurado 
+; adequadamente com as configurações relacionadas ao NAT. Veja o exemplo de transporte NAT.
+;
+; "contact_user=" define a parte do usuário do cabeçalho do contato SIP do SIP URI, isso afetará o ramal (Pattern) alcançado no 
+; Dialplan quando a extremidade remota ligar para você neste registro. O padrão é 's'.
+;
+; Se você deseja ativar o suporte de linha (LINE/PSTN/POTS/ToIP) e fazer com que as chamadas recebidas relacionadas a este 
+; registro sejam direcionadas automaticamente para um terminal, as opções "line" e "endpoint" devem ser definidas. 
+; A opção "endpoint" especifica a qual endpoint a chamada recebida deve ser associada.
+;
+;[mytrunk]
+; type=registration
+; transport=transport-udp
+; outbound_auth=mytrunk_auth
+; server_uri=sip:sip.example.com
+; client_uri=sip:1234567890@sip.example.com
+; contact_user=1234567890
+; retry_interval=60
+; forbidden_retry_interval=600
+; expiration=3600
+; line=yes
+; endpoint=mytrunk
+
+;[mytrunk_auth]
+; type=auth
+; auth_type=userpass
+; password=1234567890
+; username=1234567890
+; realm=sip.example.com
+;
+;===============ENDPOINT CONFIGURADO COMO TRUNK, e AUTENTICAÇÃO DE SAÍDA=========
+;
+; Esta é uma maneira de configurar um terminal como tronco (Trunk). Ele é configurado com "outbound_auth=" para ativar a 
+; autenticação ao discar por meio deste terminal. Não há configuração de autenticação de entrada, pois um provedor normalmente 
+; não autentica ao ligar para você.
+;
+; A configuração de identificação permite a correspondência do endereço IP com esse endpoint.
+; Para chamadas de um provedor de entroncamento, o usuário "From" (De), pode ser diferente a cada vez, portanto, queremos 
+; corresponder ao endereço IP em vez do usuário "From" (De).
+;
+; Se você deseja que o provedor do seu tronco saiba para onde enviar suas chamadas você precisará usar um registro de saída 
+; como no exemplo acima desta seção.
+;
+; NAT
+;
+; Em um nível básico, configure o endpoint com um transporte configurado com as configurações de NAT apropriadas. 
+; Pode haver algumas configurações adicionais que você precisa aqui com base em seu cenário de NAT/Firewall. 
+; Consulte a ajuda de configuração da CLI "config show help res_pjsip endpoint" ou no wiki para outras opções e 
+; configurações relacionadas ao NAT. Incluímos alguns abaixo.
+;
+; AOR
+;
+; Endpoints usam uma ou mais seções AOR para armazenar seus detalhes de contato.
+; Você pode definir vários endereços de contato no formato SIP URI em várias entradas "contato=".
+;[mytrunk]
+; type=endpoint
+; transport=transport-udp
+; context=from-external
+; disallow=all
+; allow=ulaw
+; outbound_auth=mytrunk_auth
+; aors=mytrunk
+;                 
+; force_rport=yes  ;Algumas opções relevantes de NAT que podem ser úteis. 
+; direct_media=no  ;É uma boa ideia ler a ajuda de configuração para cada uma dessas opções.
+; ice_support=yes
+
+;[mytrunk]
+; type=aor
+; contact=sip:198.51.100.1:5060
+; contact=sip:198.51.100.2:5060
+
+;[mytrunk]
+; type=identify
+; endpoint=mytrunk
+; match=198.51.100.1
+; match=198.51.100.2
+; match=192.168.10.0:5061/24
+;
+;=============ENDPOINT CONFIGURADO COMO TRUNK, INBOUND AUTH E REGISTRO===
+;
+; Aqui estamos permitindo que um dispositivo remoto se registre no Asterisk e exigindo que eles se autentiquem para registro 
+; e chamadas. Você notará que esta configuração é essencialmente a mesma que configurar um terminal para uso com um telefone 
+; SIP.
+;
+;[7000]
+; type=endpoint
+; context=from-external
+; disallow=all
+; allow=ulaw
+; transport=transport-udp
+; auth=7000
+; aors=7000
+
+; [7000]
+; type=auth
+; auth_type=userpass
+; password=7000
+; username=7000
+
+;[7000]
+; type=aor
+; max_contacts=1
+
+
+
+
+
+
+
+
+
+
+
+
